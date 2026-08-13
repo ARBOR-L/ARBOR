@@ -335,6 +335,23 @@ func buildMessage(msgType, signerAddrHex string, fields map[string]interface{}) 
 			Address: addr,
 		}
 		return "type.googleapis.com/types.MessageClaimFaucet", msg, nil
+
+	case "send":
+		fromAddr, err := hex.DecodeString(signerAddrHex)
+		if err != nil {
+			return "", nil, fmt.Errorf("decode from address: %w", err)
+		}
+		toAddr, err := hex.DecodeString(str(fields["toAddress"]))
+		if err != nil {
+			return "", nil, fmt.Errorf("decode toAddress: %w", err)
+		}
+		amount, _ := fields["amount"].(float64)
+		msg := &contract.MessageSend{
+			FromAddress: fromAddr,
+			ToAddress:   toAddr,
+			Amount:      uint64(amount),
+		}
+		return "type.googleapis.com/types.MessageSend", msg, nil
 	default:
 		return "", nil, fmt.Errorf("unknown or not-yet-wired msgType: %s", msgType)
 	}
